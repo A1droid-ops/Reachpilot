@@ -1,43 +1,30 @@
-# ReachPilot — Starter Website
+# ReachPilot — cloud-connected starter
 
-A simple, responsive outreach workspace built with plain HTML, CSS and JavaScript.
+## What this version does
+- Responsive layout for desktop and mobile.
+- Email/password account registration and sign-in using Supabase Auth.
+- Leads are stored in the Supabase `public.leads` table and sync when the same account signs in on another device.
+- Campaign drafts and templates are still stored locally in the browser.
+- Gmail is not connected and no emails are sent yet.
 
-## Included
+## Publish the update
+1. Extract this ZIP.
+2. Open your GitHub repository `a1droid-ops/Reachpilot`.
+3. Choose **Add file → Upload files**.
+4. Upload and replace `index.html`, `styles.css`, `app.js`, and `README.md` from this folder.
+5. Commit the changes. GitHub Pages will publish the update after a short delay.
 
-- Responsive dashboard layout
-- Lead management: add, search, delete and CSV import
-- Campaign draft creation and deletion
-- Reusable email templates
-- Gmail integration setup information (not connected yet)
-- Browser-local persistence using `localStorage`
+## Supabase setup already expected
+This version expects the `public.leads` table with columns:
+`id`, `user_id`, `name`, `email`, `company`, `status`, `notes`, `created_at`.
 
-## Run the website
+It also expects Row Level Security to be enabled and policies that restrict select/insert/update/delete to `auth.uid() = user_id`.
 
-### Easiest option
-1. Extract `reachpilot-website.zip`.
-2. Open the extracted folder.
-3. Double-click `index.html`.
-4. It should open in your browser.
+## Account confirmation
+Supabase may require email confirmation. If sign-up says to check your email, open the confirmation message, verify the account, then return to ReachPilot and sign in.
 
-For a more reliable local preview, you can use a simple static server, but it is not required for this starter.
-
-## Important limitations
-
-This is a frontend starter, not a production email-sending system.
-
-- No real Gmail accounts are connected.
-- No emails are sent.
-- Data is stored only in the current browser on the current device.
-- Browser data can be lost if site data is cleared.
-- There is no user login, shared database, backend, or server-side token storage yet.
-
-Do not put Google OAuth client secrets, Gmail passwords, or access tokens in these files.
-
-## Suggested next development stages
-
-1. Add a secure backend and database.
-2. Add user authentication and per-user data access.
-3. Implement Google OAuth on the server for multiple Gmail accounts.
-4. Add Gmail API sending with appropriate quotas, consent controls, unsubscribe handling and suppression checks.
-5. Add safe server-side scheduling and reply processing.
-6. Deploy to a free-tier host after checking its current limits.
+## Important
+- The Supabase URL and publishable key are included in `app.js`. A publishable key is designed to be used in browser code; security depends on correct Row Level Security policies. Never put a secret/service-role key in this folder.
+- If you use the project URL in a public repository, anyone can see the URL and publishable key. That is expected. Do not share database passwords or secret keys.
+- Campaigns and templates are device-local for now. Only leads sync to the cloud in this milestone.
+- Gmail OAuth, multiple Gmail accounts, sending, scheduling, tracking and analytics are not implemented yet.

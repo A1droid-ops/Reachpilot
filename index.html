@@ -1,147 +1,105 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101b35">
-  <title>ReachPilot — Outreach Workspace</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101827">
+  <title>ReachPilot — Outreach workspace</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js" defer></script>
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="sidebar" id="sidebar">
-      <a class="brand" href="#" aria-label="ReachPilot home">
-        <span class="brand-mark">R</span>
-        <span>Reach<span class="brand-light">Pilot</span></span>
-      </a>
-      <div class="workspace-label">WORKSPACE</div>
-      <nav class="nav-list" aria-label="Main navigation">
-        <button class="nav-item active" data-page="overview"><span class="nav-icon">▦</span>Overview</button>
-        <button class="nav-item" data-page="leads"><span class="nav-icon">♙</span>Leads</button>
-        <button class="nav-item" data-page="campaigns"><span class="nav-icon">✉</span>Campaigns</button>
-        <button class="nav-item" data-page="templates"><span class="nav-icon">▤</span>Templates</button>
-        <button class="nav-item" data-page="accounts"><span class="nav-icon">◎</span>Gmail accounts</button>
+  <div id="auth-screen" class="auth-wrap">
+    <div class="auth-card">
+      <div class="brand"><span class="brand-mark">R</span><span>ReachPilot</span></div>
+      <p class="eyebrow">YOUR OUTREACH WORKSPACE</p>
+      <h1 id="auth-heading">Welcome back</h1>
+      <p class="muted" id="auth-subheading">Sign in to access your leads from any device.</p>
+      <form id="auth-form">
+        <label for="auth-email">Email address</label>
+        <input id="auth-email" type="email" autocomplete="email" placeholder="you@example.com" required>
+        <label for="auth-password">Password</label>
+        <input id="auth-password" type="password" autocomplete="current-password" minlength="6" placeholder="At least 6 characters" required>
+        <button class="primary full" id="auth-submit" type="submit">Sign in</button>
+      </form>
+      <p class="auth-switch"><span id="auth-switch-text">New to ReachPilot?</span> <button id="auth-switch" class="text-button" type="button">Create account</button></p>
+      <p id="auth-message" class="message" role="status"></p>
+      <p class="tiny muted">Your account is private. Your leads are protected by Supabase row-level security.</p>
+    </div>
+  </div>
+
+  <div id="app" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">R</span><span>ReachPilot</span></div>
+      <p class="side-label">WORKSPACE</p>
+      <nav>
+        <button class="nav-item active" data-view="overview">▦ <span>Overview</span></button>
+        <button class="nav-item" data-view="leads">♧ <span>Leads</span></button>
+        <button class="nav-item" data-view="campaigns">↗ <span>Campaigns</span></button>
+        <button class="nav-item" data-view="templates">▤ <span>Templates</span></button>
+        <button class="nav-item" data-view="gmail">✉ <span>Gmail accounts</span></button>
       </nav>
       <div class="sidebar-bottom">
-        <div class="help-card">
-          <div class="help-icon">?</div>
-          <strong>Getting started</strong>
-          <p>Build your first outreach campaign, one step at a time.</p>
-          <button class="text-button" data-page="campaigns">Create a campaign →</button>
-        </div>
-        <div class="profile">
-          <div class="avatar">RP</div>
-          <div><strong>My workspace</strong><small>Free starter</small></div>
-          <span class="profile-dots">•••</span>
-        </div>
+        <div class="signed-in"><span class="online-dot"></span><span id="sidebar-email">Signed in</span></div>
+        <button id="sign-out" class="nav-item signout">↪ <span>Sign out</span></button>
       </div>
     </aside>
 
     <main class="main">
       <header class="topbar">
-        <button class="mobile-menu" id="mobileMenu" aria-label="Open navigation">☰</button>
-        <div class="breadcrumbs">Workspace <span>/</span> <strong id="breadcrumb">Overview</strong></div>
-        <div class="top-actions">
-          <span class="local-badge"><i></i> Local workspace</span>
-          <button class="icon-button" title="Notifications" aria-label="Notifications">♧</button>
-          <div class="avatar small">RP</div>
-        </div>
+        <div><p class="eyebrow">OUTREACH WORKSPACE</p><h1 id="page-title">Overview</h1></div>
+        <div class="top-user"><span class="online-dot"></span><span id="top-email"></span></div>
       </header>
 
-      <section class="page active" id="page-overview">
-        <div class="page-heading">
-          <div><p class="eyebrow">YOUR OUTREACH WORKSPACE</p><h1>Good to see you.</h1><p class="subheading">Here's what's happening with your outreach.</p></div>
-          <button class="primary-button" data-page="campaigns">＋ New campaign</button>
+      <section id="view-overview" class="view">
+        <div class="welcome-panel">
+          <div><p class="eyebrow light">YOUR WORKSPACE, IN ONE PLACE</p><h2>Build better conversations.</h2><p>Keep your prospects organised and your outreach moving.</p></div>
+          <button class="light-button" data-go="leads">Manage leads <span>→</span></button>
         </div>
-        <div class="notice"><span class="notice-icon">i</span><div><strong>You're using the starter workspace</strong><p>Your leads and drafts are saved in this browser. Gmail sending is not connected yet.</p></div><button class="notice-close" aria-label="Dismiss notice">×</button></div>
-        <div class="stats-grid">
-          <article class="stat-card"><div class="stat-top"><span>Total leads</span><span class="stat-icon blue">♙</span></div><strong id="statLeads">0</strong><small>Contacts in your workspace</small></article>
-          <article class="stat-card"><div class="stat-top"><span>Campaigns</span><span class="stat-icon violet">✉</span></div><strong id="statCampaigns">0</strong><small>Campaign drafts and plans</small></article>
-          <article class="stat-card"><div class="stat-top"><span>Connected accounts</span><span class="stat-icon green">◎</span></div><strong id="statAccounts">0</strong><small>Gmail accounts connected</small></article>
-          <article class="stat-card"><div class="stat-top"><span>Emails sent</span><span class="stat-icon amber">↗</span></div><strong>0</strong><small>Sending becomes available after setup</small></article>
+        <div class="stat-grid">
+          <article class="stat-card"><span class="stat-label">Total leads</span><strong id="stat-leads">0</strong><span class="stat-note">Saved securely in your cloud workspace</span></article>
+          <article class="stat-card"><span class="stat-label">Campaign drafts</span><strong id="stat-campaigns">0</strong><span class="stat-note">Drafts on this device</span></article>
+          <article class="stat-card"><span class="stat-label">Templates</span><strong id="stat-templates">0</strong><span class="stat-note">Reusable message drafts</span></article>
         </div>
-        <div class="content-grid">
-          <article class="panel">
-            <div class="panel-heading"><div><h2>Campaign activity</h2><p>Your latest campaign work</p></div><button class="text-button" data-page="campaigns">View campaigns →</button></div>
-            <div id="recentCampaigns" class="empty-state"><div class="empty-illustration">✉</div><strong>No campaigns yet</strong><p>Create a campaign draft to start organizing your outreach.</p><button class="secondary-button" data-page="campaigns">Create your first campaign</button></div>
-          </article>
-          <article class="panel quick-panel">
-            <div class="panel-heading"><div><h2>Quick actions</h2><p>Keep your workflow moving</p></div></div>
-            <button class="quick-action" data-page="leads"><span class="quick-icon">＋</span><span><strong>Add leads</strong><small>Import a CSV or add contacts</small></span><b>→</b></button>
-            <button class="quick-action" data-page="campaigns"><span class="quick-icon">✎</span><span><strong>Build a campaign</strong><small>Prepare a personalized email</small></span><b>→</b></button>
-            <button class="quick-action" data-page="accounts"><span class="quick-icon">◎</span><span><strong>Set up Gmail</strong><small>See what's needed to connect</small></span><b>→</b></button>
-          </article>
-        </div>
-        <div class="footer-note">ReachPilot is an early starter version. Connect real services only after configuring secure authentication.</div>
-      </section>
-
-      <section class="page" id="page-leads">
-        <div class="page-heading"><div><p class="eyebrow">PROSPECT DATABASE</p><h1>Leads</h1><p class="subheading">Organize the people and businesses you want to reach.</p></div><div class="heading-actions"><label class="secondary-button upload-button">↑ Import CSV<input type="file" id="csvFile" accept=".csv,text/csv" hidden></label><button class="primary-button" id="addLeadBtn">＋ Add lead</button></div></div>
-        <div class="panel">
-          <div class="toolbar"><div class="search-box">⌕ <input id="leadSearch" placeholder="Search name, company or email"></div><span class="muted" id="leadCount">0 leads</span></div>
-          <div class="table-wrap"><table><thead><tr><th>CONTACT</th><th>COMPANY</th><th>EMAIL</th><th>STATUS</th><th></th></tr></thead><tbody id="leadRows"></tbody></table></div>
-          <div class="empty-state compact" id="leadsEmpty"><div class="empty-illustration">♙</div><strong>Your lead list is empty</strong><p>Add a contact or import a CSV file to get started.</p></div>
-        </div>
-        <p class="helper-text">CSV import supports columns such as first_name, last_name, name, email, company, website and status.</p>
-      </section>
-
-      <section class="page" id="page-campaigns">
-        <div class="page-heading"><div><p class="eyebrow">OUTREACH WORKFLOW</p><h1>Campaigns</h1><p class="subheading">Create and organize your email outreach plans.</p></div><button class="primary-button" id="newCampaignBtn">＋ New campaign</button></div>
-        <div class="panel">
-          <div class="toolbar"><div><h2 class="toolbar-title">All campaigns</h2><p class="muted">Drafts are saved in this browser.</p></div><span class="muted" id="campaignCount">0 campaigns</span></div>
-          <div id="campaignList" class="campaign-list"></div>
-          <div class="empty-state compact" id="campaignsEmpty"><div class="empty-illustration">✉</div><strong>No campaigns created</strong><p>Create a campaign draft to plan your next outreach.</p><button class="secondary-button" id="emptyNewCampaign">Create campaign</button></div>
+        <div class="section-card"><div class="section-heading"><div><h3>Getting started</h3><p class="muted">Your leads now sync through your ReachPilot account.</p></div></div>
+          <div class="check-row"><span class="check-icon">✓</span><div><strong>Cloud account connected</strong><p>Your signed-in account can access its own saved leads.</p></div></div>
+          <div class="check-row"><span class="check-icon pending">2</span><div><strong>Connect Gmail</strong><p>Gmail integration is a later step. No emails are sent yet.</p></div></div>
         </div>
       </section>
 
-      <section class="page" id="page-templates">
-        <div class="page-heading"><div><p class="eyebrow">REUSABLE MESSAGES</p><h1>Email templates</h1><p class="subheading">Keep your outreach messages organized and consistent.</p></div><button class="primary-button" id="newTemplateBtn">＋ New template</button></div>
-        <div id="templateGrid" class="template-grid"></div>
-        <div class="empty-state panel" id="templatesEmpty"><div class="empty-illustration">▤</div><strong>No templates yet</strong><p>Create a reusable email draft. Use {{first_name}} to personalize it.</p></div>
+      <section id="view-leads" class="view hidden">
+        <div class="section-heading leads-heading"><div><h2>Your leads</h2><p class="muted">Add and manage prospects. Changes sync to your other signed-in devices.</p></div><button id="add-lead-toggle" class="primary">＋ Add lead</button></div>
+        <form id="lead-form" class="form-card hidden">
+          <h3>Add a lead</h3>
+          <div class="form-grid">
+            <div><label for="lead-name">Name *</label><input id="lead-name" required placeholder="Contact name"></div>
+            <div><label for="lead-email">Email</label><input id="lead-email" type="email" placeholder="name@company.com"></div>
+            <div><label for="lead-company">Company</label><input id="lead-company" placeholder="Company name"></div>
+            <div><label for="lead-status">Status</label><select id="lead-status"><option>New</option><option>Contacted</option><option>Replied</option><option>Interested</option><option>Not interested</option></select></div>
+            <div class="wide"><label for="lead-notes">Notes</label><textarea id="lead-notes" rows="2" placeholder="Useful context about this prospect"></textarea></div>
+          </div>
+          <div class="form-actions"><button type="button" id="cancel-lead" class="secondary">Cancel</button><button class="primary" type="submit">Save lead</button></div>
+        </form>
+        <div class="toolbar"><input id="lead-search" type="search" placeholder="Search name, email or company…"><button id="refresh-leads" class="secondary">↻ Refresh</button></div>
+        <div id="leads-list" class="lead-list"><div class="empty-state">Loading your leads…</div></div>
       </section>
 
-      <section class="page" id="page-accounts">
-        <div class="page-heading"><div><p class="eyebrow">SENDER SETUP</p><h1>Gmail accounts</h1><p class="subheading">Plan which sender accounts you'll use for outreach.</p></div></div>
-        <div class="notice"><span class="notice-icon">i</span><div><strong>Gmail integration is not connected</strong><p>This website does not currently access or send from your Gmail. OAuth setup and a secure backend are required first.</p></div></div>
-        <div class="panel account-panel"><div class="gmail-logo">M</div><div class="account-copy"><h2>Connect Gmail securely</h2><p>In the next development stage, we'll add Google OAuth so you can authorize multiple Gmail accounts without sharing passwords.</p><ul><li>Each account is authorized separately.</li><li>Tokens must be stored securely on a server, never in this browser app.</li><li>Sending will respect Gmail quotas and recipient opt-outs.</li></ul></div><span class="status-pill pending">Not connected</span></div>
-        <div class="footer-note">Never enter your Gmail password into ReachPilot. A proper Google authorization screen will be used when integration is implemented.</div>
+      <section id="view-campaigns" class="view hidden">
+        <div class="section-heading"><div><h2>Campaign drafts</h2><p class="muted">Plan your outreach before sending. Sending is not enabled yet.</p></div><button id="new-campaign" class="primary">＋ New draft</button></div>
+        <div id="campaign-list" class="item-list"></div>
       </section>
+
+      <section id="view-templates" class="view hidden">
+        <div class="section-heading"><div><h2>Message templates</h2><p class="muted">Keep reusable outreach copy handy on this device.</p></div><button id="new-template" class="primary">＋ New template</button></div>
+        <div id="template-list" class="item-list"></div>
+      </section>
+
+      <section id="view-gmail" class="view hidden">
+        <div class="section-card"><div class="gmail-icon">✉</div><h2>Gmail accounts</h2><p class="muted">Gmail is not connected yet. We'll add Google's secure sign-in and permissions in a later milestone.</p><ul class="plain-list"><li>Connect more than one Gmail account</li><li>Choose which account to use for each campaign</li><li>Respect Gmail sending limits and recipient opt-outs</li></ul><span class="status-pill">Coming in a later milestone</span></div>
+      </section>
+      <p id="global-message" class="message global-message" role="status"></p>
     </main>
   </div>
-
-  <dialog id="leadDialog" class="modal">
-    <form id="leadForm" method="dialog">
-      <div class="modal-heading"><div><p class="eyebrow">CONTACT DETAILS</p><h2>Add a lead</h2></div><button type="button" class="close-button" data-close="leadDialog">×</button></div>
-      <label>Full name<input name="name" required placeholder="e.g. Jordan Smith"></label>
-      <label>Email address<input name="email" type="email" required placeholder="jordan@example.com"></label>
-      <label>Company<input name="company" placeholder="Company name"></label>
-      <label>Website<input name="website" placeholder="https://example.com"></label>
-      <div class="modal-actions"><button type="button" class="secondary-button" data-close="leadDialog">Cancel</button><button class="primary-button" type="submit">Save lead</button></div>
-    </form>
-  </dialog>
-
-  <dialog id="campaignDialog" class="modal wide-modal">
-    <form id="campaignForm" method="dialog">
-      <div class="modal-heading"><div><p class="eyebrow">CAMPAIGN PLANNER</p><h2>Create a campaign</h2></div><button type="button" class="close-button" data-close="campaignDialog">×</button></div>
-      <label>Campaign name<input name="name" required placeholder="e.g. November website outreach"></label>
-      <label>Email subject<input name="subject" required placeholder="A quick question about your website"></label>
-      <label>Message<textarea name="message" rows="6" required placeholder="Hi {{first_name}},&#10;&#10;I came across {{company}} and wanted to reach out..."></textarea></label>
-      <p class="helper-text">Personalization fields: {{first_name}}, {{last_name}}, {{company}}, {{website}}.</p>
-      <div class="modal-actions"><button type="button" class="secondary-button" data-close="campaignDialog">Cancel</button><button class="primary-button" type="submit">Save draft</button></div>
-    </form>
-  </dialog>
-
-  <dialog id="templateDialog" class="modal wide-modal">
-    <form id="templateForm" method="dialog">
-      <div class="modal-heading"><div><p class="eyebrow">MESSAGE LIBRARY</p><h2>Create a template</h2></div><button type="button" class="close-button" data-close="templateDialog">×</button></div>
-      <label>Template name<input name="name" required placeholder="Friendly introduction"></label>
-      <label>Email subject<input name="subject" required placeholder="A quick question"></label>
-      <label>Message<textarea name="message" rows="6" required placeholder="Hi {{first_name}},..."></textarea></label>
-      <div class="modal-actions"><button type="button" class="secondary-button" data-close="templateDialog">Cancel</button><button class="primary-button" type="submit">Save template</button></div>
-    </form>
-  </dialog>
-
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="app.js"></script>
 </body>
 </html>
