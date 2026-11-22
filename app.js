@@ -317,93 +317,48 @@ function renderCloudItems() {
   });
 }
 
-async function createCampaign() {
+
+async function createCampaign(e) {
+  e.preventDefault();
   if (!currentUser) return;
 
-  const name = prompt("Campaign name:");
-  if (!name?.trim()) return;
+  const name = $("campaign-name").value.trim();
+  const subject = $("campaign-subject").value.trim();
+  const body = $("campaign-body").value.trim();
+  const dailyTarget = Number($("campaign-target").value);
 
-  const subject = prompt("Email subject (optional):") || "";
-  const body = prompt("Write the campaign email/message:") || "";
-  const targetInput = prompt("Your preferred daily sending target:", "100");
-  if (targetInput === null) return;
-
-  const dailyTarget = Math.max(1, Math.floor(Number(targetInput) || 100));
-
-  const { error } = await db.from("campaigns").insert({
-    user_id: currentUser.id,
-    name: name.trim(),
-    subject,
-    body,
-    status: "draft",
-    daily_target: dailyTarget
-  });
-
-  if (error) {
-    message($("global-message"), "Could not save campaign: " + error.message, true);
+  if (!name || !body || !Number.isInteger(dailyTarget) || dailyTarget < 1) {
+    message($("global-message"), "Please complete the required fields.", true);
     return;
   }
 
-  await loadCloudItems();
-  message($("global-message"), "Campaign saved to your cloud workspace.");
-}
+  const button = e.submitter;
+  button.disabled = true;
+  button.textContent = "Saving...";
 
-async function createTemplate() {
-  if (!currentUser) return;
+  try {
+    const { error } = await db.from("campaigns").insert({
+      user_id: currentUser.id,
+      name,
+      subject,
+      body,
+      status: "draft",
+      daily_target: dailyTarget
+    });
 
-  const name = prompt("Template name:");
-  if (!name?.trim()) return;
+    if (error) throw error;
 
-  const subject = prompt("Email subject (optional):") || "";
-  const body = prompt("Paste your email template:");
-  if (body === null || !body.trim()) return;
+    $("campaign-form").reset();
+    $("campaign-target").value = 100;
 
-  const { error } = await db.from("templates").insert({
-    user_id: currentUser.id,
-    name: name.trim(),
-    subject,
-    body: body.trim()
-  });
-
-  if (error) {
-    message($("global-message"), "Could not save template: " + error.message, true);
-    return;
+    await loadCloudItems();
+    message($("global-message"), "Campaign saved successfully.");
+  } catch (err) {
+    message($("global-message"), "Could not save campaign: " + err.message, true);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Save campaign";
   }
-
-  await loadCloudItems();
-  message($("global-message"), "Template saved to your cloud workspace.");
 }
 
-async function deleteCloudItem(table, id) {
-  if (!confirm("Delete this item?")) return;
-
-  const { error } = await db.from(table).delete().eq("id", id);
-
-  if (error) {
-    message($("global-message"), "Could not delete item: " + error.message, true);
-    return;
-  }
-
-  await loadCloudItems();
-  message($("global-message"), "Item deleted.");
-}
-
-$("new-campaign").addEventListener("click", createCampaign);
-$("new-template").addEventListener("click", createTemplate);
-
-function updateStats() {
-  $("stat-leads").textContent = leadsCache.length;
-  $("stat-campaigns").textContent = campaigns.length;
-  $("stat-templates").textContent = templates.length;
-}
-
-// Restore existing login session
-(async () => {
-  const { data: { session } } = await db.auth.getSession();
-
-  if (session?.user) {
-    showApp(session.user);
-  } else {
-    showAuth();
-  }
-})();
+$("campaign-form").addEventListener("submit", createCampaign);
