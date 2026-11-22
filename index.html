@@ -68,38 +68,40 @@
         </div>
       </section>
 
-      <section id="view-leads" class="view hidden">
-        <div class="section-heading leads-heading"><div><h2>Your leads</h2><p class="muted">Add and manage prospects. Changes sync to your other signed-in devices.</p></div><button id="add-lead-toggle" class="primary">＋ Add lead</button></div>
-        <form id="lead-form" class="form-card hidden">
-          <h3>Add a lead</h3>
-          <div class="form-grid">
-            <div><label for="lead-name">Name *</label><input id="lead-name" required placeholder="Contact name"></div>
-            <div><label for="lead-email">Email</label><input id="lead-email" type="email" placeholder="name@company.com"></div>
-            <div><label for="lead-company">Company</label><input id="lead-company" placeholder="Company name"></div>
-            <div><label for="lead-status">Status</label><select id="lead-status"><option>New</option><option>Contacted</option><option>Replied</option><option>Interested</option><option>Not interested</option></select></div>
-            <div class="wide"><label for="lead-notes">Notes</label><textarea id="lead-notes" rows="2" placeholder="Useful context about this prospect"></textarea></div>
-          </div>
-          <div class="form-actions"><button type="button" id="cancel-lead" class="secondary">Cancel</button><button class="primary" type="submit">Save lead</button></div>
-        </form>
-        <div class="toolbar"><input id="lead-search" type="search" placeholder="Search name, email or company…"><button id="refresh-leads" class="secondary">↻ Refresh</button></div>
-        <div id="leads-list" class="lead-list"><div class="empty-state">Loading your leads…</div></div>
-      </section>
-
-      <section id="view-campaigns" class="view hidden">
-        <div class="section-heading"><div><h2>Campaign drafts</h2><p class="muted">Plan your outreach before sending. Sending is not enabled yet.</p></div><button id="new-campaign" class="primary">＋ New draft</button></div>
-        <div id="campaign-list" class="item-list"></div>
-      </section>
-
-      <section id="view-templates" class="view hidden">
-        <div class="section-heading"><div><h2>Message templates</h2><p class="muted">Keep reusable outreach copy handy on this device.</p></div><button id="new-template" class="primary">＋ New template</button></div>
-        <div id="template-list" class="item-list"></div>
-      </section>
-
-      <section id="view-gmail" class="view hidden">
-        <div class="section-card"><div class="gmail-icon">✉</div><h2>Gmail accounts</h2><p class="muted">Gmail is not connected yet. We'll add Google's secure sign-in and permissions in a later milestone.</p><ul class="plain-list"><li>Connect more than one Gmail account</li><li>Choose which account to use for each campaign</li><li>Respect Gmail sending limits and recipient opt-outs</li></ul><span class="status-pill">Coming in a later milestone</span></div>
-      </section>
-      <p id="global-message" class="message global-message" role="status"></p>
-    </main>
+     
+<section id="view-campaigns" class="view hidden">
+  <div class="section-heading">
+    <div>
+      <h2>Campaign drafts</h2>
+      <p class="muted">Create and organise your outreach campaigns.</p>
+    </div>
   </div>
-</body>
-</html>
+
+  <form id="campaign-form" class="form-card">
+    <h3>Create a campaign</h3>
+    <div class="form-grid">
+      <div class="wide">
+        <label for="campaign-name">Campaign name *</label>
+        <input id="campaign-name" required placeholder="e.g. Black Friday store outreach">
+      </div>
+      <div class="wide">
+        <label for="campaign-subject">Email subject</label>
+        <input id="campaign-subject" placeholder="Your email subject">
+      </div>
+      <div class="wide">
+        <label for="campaign-body">Email message *</label>
+        <textarea id="campaign-body" rows="7" required placeholder="Write your outreach email here..."></textarea>
+      </div>
+      <div>
+        <label for="campaign-target">Preferred daily sending target</label>
+        <input id="campaign-target" type="number" min="1" value="100" required>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="primary" type="submit">Save campaign</button>
+    </div>
+    <p class="tiny muted">This saves a draft only. It does not send emails.</p>
+  </form>
+
+  <div id="campaign-list" class="item-list"></div>
+</section>
