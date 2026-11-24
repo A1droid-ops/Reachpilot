@@ -15,7 +15,7 @@
       <div class="brand"><span class="brand-mark">R</span><span>ReachPilot</span></div>
       <p class="eyebrow">YOUR OUTREACH WORKSPACE</p>
       <h1 id="auth-heading">Welcome back</h1>
-      <p class="muted" id="auth-subheading">Sign in to access your leads from any device.</p>
+      <p class="muted" id="auth-subheading">Sign in to access your workspace from any device.</p>
       <form id="auth-form">
         <label for="auth-email">Email address</label>
         <input id="auth-email" type="email" autocomplete="email" placeholder="you@example.com" required>
@@ -25,7 +25,7 @@
       </form>
       <p class="auth-switch"><span id="auth-switch-text">New to ReachPilot?</span> <button id="auth-switch" class="text-button" type="button">Create account</button></p>
       <p id="auth-message" class="message" role="status"></p>
-      <p class="tiny muted">Your account is private. Your leads are protected by Supabase row-level security.</p>
+      <p class="tiny muted">Your account is private. Your records are protected by Supabase row-level security.</p>
     </div>
   </div>
 
@@ -59,49 +59,80 @@
         </div>
         <div class="stat-grid">
           <article class="stat-card"><span class="stat-label">Total leads</span><strong id="stat-leads">0</strong><span class="stat-note">Saved securely in your cloud workspace</span></article>
-          <article class="stat-card"><span class="stat-label">Campaign drafts</span><strong id="stat-campaigns">0</strong><span class="stat-note">Drafts on this device</span></article>
+          <article class="stat-card"><span class="stat-label">Campaign drafts</span><strong id="stat-campaigns">0</strong><span class="stat-note">Saved in your cloud workspace</span></article>
           <article class="stat-card"><span class="stat-label">Templates</span><strong id="stat-templates">0</strong><span class="stat-note">Reusable message drafts</span></article>
         </div>
-        <div class="section-card"><div class="section-heading"><div><h3>Getting started</h3><p class="muted">Your leads now sync through your ReachPilot account.</p></div></div>
-          <div class="check-row"><span class="check-icon">✓</span><div><strong>Cloud account connected</strong><p>Your signed-in account can access its own saved leads.</p></div></div>
-          <div class="check-row"><span class="check-icon pending">2</span><div><strong>Connect Gmail</strong><p>Gmail integration is a later step. No emails are sent yet.</p></div></div>
+        <div class="section-card">
+          <div class="section-heading"><div><h3>Getting started</h3><p class="muted">Your records sync through your ReachPilot account.</p></div></div>
+          <div class="check-row"><span class="check-icon">✓</span><div><strong>Cloud workspace connected</strong><p>Your signed-in account can access its own saved leads, campaigns and templates.</p></div></div>
+          <div class="check-row"><span class="check-icon pending">2</span><div><strong>Connect Gmail</strong><p>Gmail integration is not active yet. No emails are sent from ReachPilot at this stage.</p></div></div>
         </div>
       </section>
 
-     
-<section id="view-campaigns" class="view hidden">
-  <div class="section-heading">
-    <div>
-      <h2>Campaign drafts</h2>
-      <p class="muted">Create and organise your outreach campaigns.</p>
-    </div>
+      <section id="view-leads" class="view hidden">
+        <div class="section-heading leads-heading"><div><h2>Your leads</h2><p class="muted">Add, search, import and organise your prospects.</p></div>
+          <button id="add-lead-toggle" class="primary" type="button">+ Add lead</button></div>
+        <div class="toolbar"><input id="lead-search" type="search" placeholder="Search name, email or company…">
+          <button id="refresh-leads" class="secondary" type="button">Refresh</button>
+          <label class="secondary import-label" for="csv-file">Import CSV</label><input id="csv-file" type="file" accept=".csv,text/csv" class="file-input"></div>
+        <form id="lead-form" class="form-card hidden">
+          <h3>Add a lead</h3>
+          <div class="form-grid">
+            <div><label for="lead-name">Full name *</label><input id="lead-name" required></div>
+            <div><label for="lead-email">Email</label><input id="lead-email" type="email"></div>
+            <div><label for="lead-company">Company</label><input id="lead-company"></div>
+            <div><label for="lead-status">Status</label><select id="lead-status"><option>New</option><option>Contacted</option><option>Replied</option><option>Interested</option><option>Not interested</option></select></div>
+            <div class="wide"><label for="lead-notes">Notes</label><textarea id="lead-notes" rows="3"></textarea></div>
+          </div>
+          <div class="form-actions"><button id="cancel-lead" class="secondary" type="button">Cancel</button><button class="primary" type="submit">Save lead</button></div>
+        </form>
+        <div id="leads-list" class="lead-list"><div class="empty-state">Sign in to load your leads.</div></div>
+      </section>
+
+      <section id="view-campaigns" class="view hidden">
+        <div class="section-heading"><div><h2>Campaign drafts</h2><p class="muted">Create and organise your outreach campaigns.</p></div></div>
+        <form id="campaign-form" class="form-card">
+          <h3>Create a campaign</h3>
+          <div class="form-grid">
+            <div class="wide"><label for="campaign-name">Campaign name *</label><input id="campaign-name" required placeholder="e.g. Black Friday store outreach"></div>
+            <div class="wide"><label for="campaign-subject">Email subject</label><input id="campaign-subject" placeholder="Your email subject"></div>
+            <div class="wide"><label for="campaign-body">Email message *</label><textarea id="campaign-body" rows="7" required placeholder="Write your outreach email here…"></textarea></div>
+            <div><label for="campaign-target">Preferred daily sending target</label><input id="campaign-target" type="number" min="1" max="500" value="100" required></div>
+          </div>
+          <div class="form-actions"><button class="primary" type="submit">Save campaign</button></div>
+          <p class="tiny muted">This saves a draft only. It does not send emails. Actual sending limits will depend on provider rules and account eligibility.</p>
+        </form>
+        <div id="campaign-list" class="item-list"><div class="empty-state">Sign in to load campaigns.</div></div>
+      </section>
+
+      <section id="view-templates" class="view hidden">
+        <div class="section-heading"><div><h2>Email templates</h2><p class="muted">Save reusable outreach messages for future campaigns.</p></div></div>
+        <form id="template-form" class="form-card">
+          <h3>Create a template</h3>
+          <div class="form-grid">
+            <div class="wide"><label for="template-name">Template name *</label><input id="template-name" required placeholder="e.g. First contact"></div>
+            <div class="wide"><label for="template-subject">Email subject</label><input id="template-subject" placeholder="Your email subject"></div>
+            <div class="wide"><label for="template-body">Email message *</label><textarea id="template-body" rows="7" required placeholder="Write your reusable message…"></textarea></div>
+          </div>
+          <div class="form-actions"><button class="primary" type="submit">Save template</button></div>
+        </form>
+        <div id="template-list" class="item-list"><div class="empty-state">Sign in to load templates.</div></div>
+      </section>
+
+      <section id="view-gmail" class="view hidden">
+        <div class="section-heading"><div><h2>Gmail accounts</h2><p class="muted">Manage the sender accounts you may connect to ReachPilot.</p></div></div>
+        <div class="section-card gmail-panel">
+          <div class="gmail-icon">✉</div><h3>Google connection is not configured</h3>
+          <p class="muted">The secure Gmail connection needs Google OAuth setup and server-side token handling. Do not enter or share your Gmail password here.</p>
+          <button id="gmail-connect" class="primary" type="button">Set up Gmail connection</button>
+          <p id="gmail-message" class="message" role="status"></p>
+          <p class="tiny muted">No Gmail account is connected and no email is being sent yet.</p>
+        </div>
+        <div class="section-card"><h3>Planned account controls</h3><ul class="plain-list"><li>Connect multiple Gmail accounts through Google sign-in</li><li>Show account connection and sending status</li><li>Respect Gmail sending limits and account safeguards</li><li>Support unsubscribe and suppression controls before campaigns can send</li></ul></div>
+      </section>
+
+      <p id="global-message" class="message global-message" role="status"></p>
+    </main>
   </div>
-
-  <form id="campaign-form" class="form-card">
-    <h3>Create a campaign</h3>
-    <div class="form-grid">
-      <div class="wide">
-        <label for="campaign-name">Campaign name *</label>
-        <input id="campaign-name" required placeholder="e.g. Black Friday store outreach">
-      </div>
-      <div class="wide">
-        <label for="campaign-subject">Email subject</label>
-        <input id="campaign-subject" placeholder="Your email subject">
-      </div>
-      <div class="wide">
-        <label for="campaign-body">Email message *</label>
-        <textarea id="campaign-body" rows="7" required placeholder="Write your outreach email here..."></textarea>
-      </div>
-      <div>
-        <label for="campaign-target">Preferred daily sending target</label>
-        <input id="campaign-target" type="number" min="1" value="100" required>
-      </div>
-    </div>
-    <div class="form-actions">
-      <button class="primary" type="submit">Save campaign</button>
-    </div>
-    <p class="tiny muted">This saves a draft only. It does not send emails.</p>
-  </form>
-
-  <div id="campaign-list" class="item-list"></div>
-</section>
+</body>
+</html>
