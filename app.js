@@ -246,119 +246,42 @@ async function deleteLead(id) {
 }
 
 // Cloud campaigns and templates
+
 async function loadCloudItems() {
   if (!currentUser) return;
 
   $("campaign-list").innerHTML =
-    '<div class="empty-state">Loading campaigns…</div>';
+    '<div class="empty-state">Loading campaigns...</div>';
   $("template-list").innerHTML =
-    '<div class="empty-state">Loading templates…</div>';
+    '<div class="empty-state">Loading templates...</div>';
 
   const [campaignResult, templateResult] = await Promise.all([
-    db.from("campaigns").select("*").order("created_at", { ascending: false }),
-    db.from("templates").select("*").order("created_at", { ascending: false })
+    db.from("campaigns")
+      .select("*")
+      .eq("user_id", currentUser.id)
+      .order("created_at", { ascending: false }),
+
+    db.from("templates")
+      .select("*")
+      .eq("user_id", currentUser.id)
+      .order("created_at", { ascending: false })
   ]);
+
+  campaigns = campaignResult.error ? [] : (campaignResult.data || []);
+  templates = templateResult.error ? [] : (templateResult.data || []);
+
+  renderCloudItems();
+  updateStats();
 
   if (campaignResult.error) {
     $("campaign-list").innerHTML =
       '<div class="empty-state">Campaign error: ' +
-      escapeHtml(campaignResult.error.message) + "</div>";
-  } else {
-    campaigns = campaignResult.data || [];
+      escapeHtml(campaignResult.error.message) + '</div>';
   }
 
   if (templateResult.error) {
     $("template-list").innerHTML =
       '<div class="empty-state">Template error: ' +
-      escapeHtml(templateResult.error.message) + "</div>";
-  } else {
-    templates = templateResult.data || [];
-  }
-
-  renderCloudItems();
-  updateStats();
-}
-
-function renderCloudItems() {
-  $("campaign-list").innerHTML = campaigns.length
-    ? campaigns.map(c => `
-      <article class="item-card">
-        <div>
-          <h3>${escapeHtml(c.name)}</h3>
-          <p>${escapeHtml(c.subject || "No subject added")}</p>
-          <p>${escapeHtml(c.body || "")}</p>
-          <span class="tag">Draft · ${Number(c.daily_target || 100)} emails/day target</span>
-        </div>
-        <button class="delete-button" data-campaign="${c.id}">Delete</button>
-      </article>
-    `).join("")
-    : '<div class="empty-state">No campaign drafts yet. Create your first campaign.</div>';
-
-  $("template-list").innerHTML = templates.length
-    ? templates.map(t => `
-      <article class="item-card">
-        <div>
-          <h3>${escapeHtml(t.name)}</h3>
-          <p><strong>${escapeHtml(t.subject || "No subject")}</strong></p>
-          <p>${escapeHtml(t.body)}</p>
-          <span class="tag">Saved to your cloud workspace</span>
-        </div>
-        <button class="delete-button" data-template="${t.id}">Delete</button>
-      </article>
-    `).join("")
-    : '<div class="empty-state">No templates yet. Save your first email template.</div>';
-
-  document.querySelectorAll("[data-campaign]").forEach(b => {
-    b.addEventListener("click", () => deleteCloudItem("campaigns", b.dataset.campaign));
-  });
-
-  document.querySelectorAll("[data-template]").forEach(b => {
-    b.addEventListener("click", () => deleteCloudItem("templates", b.dataset.template));
-  });
-}
-
-
-async function createCampaign(e) {
-  e.preventDefault();
-  if (!currentUser) return;
-
-  const name = $("campaign-name").value.trim();
-  const subject = $("campaign-subject").value.trim();
-  const body = $("campaign-body").value.trim();
-  const dailyTarget = Number($("campaign-target").value);
-
-  if (!name || !body || !Number.isInteger(dailyTarget) || dailyTarget < 1) {
-    message($("global-message"), "Please complete the required fields.", true);
-    return;
-  }
-
-  const button = e.submitter;
-  button.disabled = true;
-  button.textContent = "Saving...";
-
-  try {
-    const { error } = await db.from("campaigns").insert({
-      user_id: currentUser.id,
-      name,
-      subject,
-      body,
-      status: "draft",
-      daily_target: dailyTarget
-    });
-
-    if (error) throw error;
-
-    $("campaign-form").reset();
-    $("campaign-target").value = 100;
-
-    await loadCloudItems();
-    message($("global-message"), "Campaign saved successfully.");
-  } catch (err) {
-    message($("global-message"), "Could not save campaign: " + err.message, true);
-  } finally {
-    button.disabled = false;
-    button.textContent = "Save campaign";
+      escapeHtml(templateResult.error.message) + '</div>';
   }
 }
-
-$("campaign-form").addEventListener("submit", createCampaign);
