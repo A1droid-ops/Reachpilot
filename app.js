@@ -294,15 +294,75 @@ async function deleteCloudItem(table, id) {
   await loadCloudItems(); message($("global-message"), "Item deleted.");
 }
 
-// Gmail connection is intentionally a placeholder until secure Google OAuth is configured.
-$("gmail-connect").addEventListener("click", () => {
-  message($("gmail-message"), "Gmail connection is not configured yet. The next stage requires Google OAuth consent and secure server-side token storage.", true);
+
+// Gmail OAuth connection
+const GMAIL_FUNCTION_URL =
+  `${SUPABASE_URL}/functions/v1/gmail-connect`;
+
+$("gmail-connect").addEventListener("click", async () => {
+  const button = $("gmail-connect");
+  const output = $("gmail-message");
+
+  if (!currentUser) {
+    message(output, "Please sign in first.", true);
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Connecting…";
+  message(output, "Preparing secure Google connection…");
+
+  try {
+    const { data, error } = await db.auth.getSession();
+
+    if (error) throw error;
+
+    const session = data.session;
+
+    if (!session?.access_token) {
+      throw new Error("Your session has expired. Please sign in again.");
+    }
+
+    const response = await fetch(
+      `${GMAIL_FUNCTION_URL}?action=start`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${session.access_token}`,
+          "apikey": SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({})
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.url) {
+      throw new Error(result.error || "Could not start Gmail connection.");
+    }
+
+    window.location.assign(result.url);
+
+  } catch (error) {
+    message(output, error.message || "Gmail connection failed.", true);
+    button.disabled = false;
+    button.textContent = "Set up Gmail connection";
+  }
 });
 
-// Restore existing session after handlers are registered.
-(async () => {
-  const { data, error } = await db.auth.getSession();
-  if (error) message($("auth-message"), error.message, true);
-  if (data?.session?.user) showApp(data.session.user);
-  else showAuth();
-})();
+// Display Google OAuth callback result
+const gmailParams = new URLSearchParams(window.location.search);
+const gmailStatus = gmailParams.get("gmail");
+
+if (gmailStatus === "connected") {
+  message($("gmail-message"), "Google account connected successfully.");
+  history.replaceState({}, document.title, window.location.pathname);
+} else if (gmailStatus === "error") {
+  message(
+    $("gmail-message"),
+    gmailParams.get("message") || "Google connection failed. Please try again.",
+    true
+  );
+  history.replaceState({}, document.title, window.location.pathname);
+}
